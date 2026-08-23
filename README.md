@@ -18,4 +18,4 @@ Integrasi Google Gemini API untuk membantu dewan editor menganalisis naskah seca
 │   └── version.xml
 ├── lib/pkp/templates/controllers/modals/editorDecision/form/
 │   └── sendReviewsForm.tpl
-└── .env.example
+└── .env
