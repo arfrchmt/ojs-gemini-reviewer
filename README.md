@@ -1,7 +1,7 @@
 # OJS Gemini AI Manuscript Reviewer
 
 <p align="center">
-  <img src="thumbnail.png" alt="OJS Gemini Reviewer Preview" width="750">
+  <img src="thumbnail.png" alt="OJS Gemini Reviewer Preview" width="450">
 </p>
 
 Integrasi Google Gemini API untuk membantu dewan editor menganalisis naskah secara otomatis pada Open Journal Systems (OJS) 3.3.
