@@ -66,20 +66,28 @@
     {/fbvFormSection}
 
     <div id="sendReviews-emailContent">
-        {capture assign=geminiReviewUrl}{url router=$smarty.const.ROUTE_PAGE page="geminiReviewerHandler" op="generateReview" submissionId=$submissionId}{/capture}
+        {* --- Pengecekan Visibilitas Plugin Gemini AI Sisi Editor --- *}
+        {assign var="geminiPlugin" value=PluginRegistry::getPlugin('generic', 'geminireviewerplugin')}
+        {if $geminiPlugin && $geminiPlugin->getEnabled()}
+            {assign var="editorCtxId" value=$currentContext->getId()}
+            {assign var="geminiShowEditor" value=$geminiPlugin->getSetting($editorCtxId, 'showEditor')}
+            {if $geminiShowEditor === null || $geminiShowEditor}
+                {capture assign=geminiReviewUrl}{url router=$smarty.const.ROUTE_PAGE page="geminiReviewerHandler" op="generateReview" submissionId=$submissionId role="editor"}{/capture}
 
-        <div style="margin: 10px 0 15px 0; padding: 10px 14px; background: #eff6ff; border: 1.5px solid #38bdf8; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center;">
-                <span style="font-size: 20px; margin-right: 8px;">🤖</span>
-                <div>
-                    <strong style="font-size: 13px; color: #0369a1; display: block;">Gemini AI Reviewer</strong>
-                    <span style="font-size: 11px; color: #64748b;">Generate ulasan naskah otomatis & masukkan ke pesan</span>
+                <div style="margin: 10px 0 15px 0; padding: 10px 14px; background: #eff6ff; border: 1.5px solid #38bdf8; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">🤖</span>
+                        <div>
+                            <strong style="font-size: 13px; color: #0369a1; display: block;">Gemini AI Reviewer</strong>
+                            <span style="font-size: 11px; color: #64748b;">Generate ulasan naskah otomatis &amp; masukkan ke pesan</span>
+                        </div>
+                    </div>
+                    <button type="button" class="pkp_button" style="background: #2563eb; color: #ffffff; font-weight: bold; border: none; padding: 7px 14px; border-radius: 4px; cursor: pointer; white-space: nowrap;" onclick="execGeminiAction(this, '{$geminiReviewUrl|escape:"javascript"}', '{$submissionId|escape:"javascript"}')">
+                        ⚡ Generate &amp; Sisipkan Review AI
+                    </button>
                 </div>
-            </div>
-            <button type="button" class="pkp_button" style="background: #2563eb; color: #ffffff; font-weight: bold; border: none; padding: 7px 14px; border-radius: 4px; cursor: pointer;" onclick="execGeminiAction(this, '{$geminiReviewUrl|escape:"javascript"}', '{$submissionId|escape:"javascript"}')">
-                ⚡ Generate & Sisipkan Review AI
-            </button>
-        </div>
+            {/if}
+        {/if}
 
         {* Message to author textarea *}
         {fbvFormSection for="personalMessage"}
@@ -117,7 +125,7 @@
 
 <script type="text/javascript">
 function execGeminiAction(btn, ajaxUrl, subId) {ldelim}
-    if (!confirm("Jalankan telaah naskah otomatis dengan Gemini AI? Ulasan akan langsung disisipkan ke pesan revisi dan berkas .txt diunduh.")) return;
+    if (!confirm("Jalankan telaah naskah otomatis dengan Gemini AI? Ulasan akan langsung disisipkan ke pesan revisi.")) return;
 
     var origText = btn.innerHTML;
     btn.disabled = true;
@@ -133,10 +141,9 @@ function execGeminiAction(btn, ajaxUrl, subId) {ldelim}
 
             if (data.status) {ldelim}
                 var reviewText = data.review;
-                var htmlInsert = "<p><br></p><p><strong>=== AI PEER REVIEW ASSESSMENT ===</strong></p>" + 
-                    "<p>" + reviewText.split("\n\n").join("</p><p>").split("\n").join("<br>") + "</p>";
+                var htmlInsert = "<p><br></p><p>" + reviewText.split("\n\n").join("</p><p>").split("\n").join("<br>") + "</p>";
 
-                // 1. Update TinyMCE Editor
+                // Update TinyMCE
                 if (typeof tinyMCE !== "undefined") {ldelim}
                     var ed = tinyMCE.get("personalMessage");
                     if (ed) {ldelim}
@@ -146,22 +153,13 @@ function execGeminiAction(btn, ajaxUrl, subId) {ldelim}
                     {rdelim}
                 {rdelim}
 
-                // 2. Fallback plain textarea
+                // Fallback textarea
                 var ta = document.getElementById("personalMessage");
                 if (ta) {ldelim}
-                    ta.value += "\n\n=== AI PEER REVIEW ASSESSMENT ===\n" + reviewText;
+                    ta.value += "\n\n" + reviewText;
                 {rdelim}
 
-                // 3. Download berkas .txt otomatis
-                var blob = new Blob([reviewText], {ldelim}type: "text/plain;charset=utf-8"{rdelim});
-                var dl = document.createElement("a");
-                dl.href = URL.createObjectURL(blob);
-                dl.download = "AI_Review_Submission_" + subId + ".txt";
-                document.body.appendChild(dl);
-                dl.click();
-                document.body.removeChild(dl);
-
-                alert("Ulasan AI berhasil dimasukkan ke pesan dan file .txt telah diunduh.");
+                alert("Ulasan AI berhasil dimasukkan ke pesan.");
             {rdelim} else {ldelim}
                 alert("Pesan: " + data.message);
             {rdelim}
