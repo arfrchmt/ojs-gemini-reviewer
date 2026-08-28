@@ -1,8 +1,12 @@
 # OJS Gemini AI Manuscript Reviewer
 
 <p align="center">
+  <img src="thumbnail1.png" alt="OJS Gemini Reviewer Preview" width="550">
+</p>
+<p align="center">
   <img src="thumbnail.png" alt="OJS Gemini Reviewer Preview" width="550">
-   <img src="thumbnail1.png" alt="OJS Gemini Reviewer Preview" width="550">
+</p>
+<p align="center">
   <img src="thumbnail2.png" alt="OJS Gemini Reviewer Preview" width="550">
 </p>
 
@@ -20,4 +24,6 @@ Integrasi Google Gemini API untuk membantu dewan editor menganalisis naskah seca
 │   └── version.xml
 ├── lib/pkp/templates/controllers/modals/editorDecision/form/
 │   └── sendReviewsForm.tpl
+├── lib/pkp/templates/reviewer/review/
+│   └── step3.tpl
 └── .env
